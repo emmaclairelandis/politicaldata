@@ -13,24 +13,14 @@ This data includes but is not limited to:
     - District
     - Chamber
     - Party
-    - First Elected Year
-    - Current Term Start/End
-    - Incumbent or Open Seat
-    - Contact
-- Powers
     - Leadership Roles
     - Committee Memberships
     - Caucus Memberships
-    - Seniority
-    - Safe/Swing
-    - Term Limit
     - Margin of Last Victory
-- Ideology
-    - Party
     - Voting Records
-    - 
+    - Etc.
 
-From the gathered data, this project seeks to organize and disseminate basic information about legislators, such as describing the positions they hold on particular subjects. This will potentially allow for the prediction of future votes, creating more informed voters and investors.
+From the gathered data, this project seeks to organize and disseminate basic information about legislators, such as describing the positions they hold on particular subjects. This will potentially allow for the prediction of future votes, creating more informed voters.
 
 ---
 

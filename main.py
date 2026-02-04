@@ -26,6 +26,13 @@ CREATE TABLE IF NOT EXISTS person (
 );
 """)
 
+cur.execute("""
+INSERT INTO person (id, name, age, gender) VALUES
+    (1, 'Mike', 69, 'm'),
+    (2, 'Lisa', 67, 'f'),
+    (3, 'John', 420, 'm'),
+    (4, 'Julie', 21, 'f');
+""")
 
 conn.commit()
 
