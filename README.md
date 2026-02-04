@@ -1,3 +1,5 @@
+# About
+
 The scope of this project is to gather and organize data on 7,871 US legislators, including:
 - Federal
     - 435 House Reps
@@ -22,7 +24,12 @@ This data includes but is not limited to:
 
 From the gathered data, this project seeks to organize and disseminate basic information about legislators, such as describing the positions they hold on particular subjects. This will potentially allow for the prediction of future votes, creating more informed voters.
 
----
+# Download
+
+You'll need PostgreSQL for storing, managing, and querying data:
+- [PostgreSQL](https://www.postgresql.org/download/)
+
+# See also
 
 You may also be interested in browsing these other civic tech projects, sites, and articles:
 - https://www.govtrack.us/
