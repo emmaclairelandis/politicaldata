@@ -1,3 +1,7 @@
+####################
+# POSTGRESQL SETUP #
+####################
+
 # This file will be used to populate the PostgreSQL database with information found online regarding US legislators and their voting data.
 #
 # Useful video:
@@ -6,17 +10,11 @@
 import requests
 import os
 import psycopg2
+import yaml
 from dotenv import load_dotenv
 
 # We don't want to put sensitive information in the code, so we use this to load from the .env file in the root directory of the program.
 load_dotenv()
-
-# A repo with some basic information we need about legislators.
-url = "https://unitedstates.github.io/congress-legislators/legislators-current.json"
-
-# Fetch :3c and parse.
-response = requests.get(url)
-legislators_data = response.json()
 
 # PostgreSQL asks that you connect to it like a server for writing and what have you.
 # It isn't a single file or anything. It's a bunch of files. 
@@ -45,21 +43,78 @@ CREATE TABLE IF NOT EXISTS legislators (
 );
 """)
 
+
+#######################
+# FEDERAL LEGISLATORS #
+#######################
+
+# A repo with some basic information we need about legislators.
+# Considering all of the members of congress are in one file, it isn't that big of a deal, but I think it would be more professional to download the file and then read it locally.
+FED_URL = "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+
+# Fetch :3c and parse.
+response = requests.get(FED_URL)
+fed_legislators = response.json()
+
 # Get the data we need GAHAHAHAHAHAHAHAH!!!!!!
 # Lowkey though, this feels so much cleaner and easy to work with than JSON in Java (ToT)
-for person in legislators_data:
-    bioguide = person["id"].get("bioguide")
+def insert_federal_legislator(person):
+    external_id = person["id"].get("bioguide")
     name = person["name"].get("official_full") or (
         person["name"].get("first", "") + " " + person["name"].get("last", "")
     )
     birthday = person["bio"].get("birthday")
     gender = person["bio"].get("gender")
-
+    if gender:
+        gender = gender[0].upper()  # F/M
+    
     cur.execute("""
     INSERT INTO legislators (external_id, full_name, birthday, gender)
     VALUES (%s, %s, %s, %s)
     ON CONFLICT (external_id) DO NOTHING;
-    """, (bioguide, name, birthday, gender))
+    """, (external_id, name, birthday, gender))
+
+for person in fed_legislators:
+    insert_federal_legislator(person)
+
+
+#####################
+# STATE LEGISLATORS #
+#####################
+
+# We'll be more careful with the state legislators.
+STATE_DIR = "data"
+
+def insert_state_legislator(file_path):
+    with open(file_path, "r") as f:
+        data = yaml.safe_load(f)
+    
+    external_id = data.get("id")
+    full_name = data.get("name")
+    gender = data.get("gender")
+    if gender:
+        gender = gender[0].upper()  # F/M
+    
+    cur.execute("""
+    INSERT INTO legislators (external_id, full_name, gender)
+    VALUES (%s, %s, %s)
+    ON CONFLICT (external_id) DO NOTHING;
+    """, (external_id, full_name, gender))
+
+# Walk through all states
+for state in os.listdir(STATE_DIR):
+    state_path = os.path.join(STATE_DIR, state, "legislature")
+    if not os.path.isdir(state_path):
+        continue
+    for file in os.listdir(state_path):
+        if file.endswith(".yml"):
+            file_path = os.path.join(state_path, file)
+            insert_state_legislator(file_path)
+
+
+######################
+# *GIVES YOU TREATS* #
+######################
 
 conn.commit()
 cur.close()
