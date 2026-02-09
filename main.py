@@ -44,6 +44,7 @@ CREATE TABLE IF NOT EXISTS legislators (
     id SERIAL PRIMARY KEY,
     full_name TEXT NOT NULL,
     given_name TEXT,
+    middle_name TEXT,
     family_name TEXT,
     gender CHAR(1)
 );
@@ -114,19 +115,36 @@ def insert_state_legislator(file_path):
     with open(file_path, "r") as f:
         data = yaml.safe_load(f)
 
-    full_name = data.get("name")
-    given_name = data.get("given_name")
-    family_name = data.get("family_name")
+    # OpenStates handles names... oddly. Middle names are paired with family names, and suffixes aren't included at all except as an other name.
+    # Let's see about handling a separate column for middle names that's entirely optional for all family_name with spaces. 
+    # We wholely ignore the Jr. in anyone whose name has it right now, because it's frankly not very important, and OpenStates hides it away in their database. For example, Donald Sternoff Beyer Jr. is catalogued as merely Donald Beyer.
+    # In Java, we might use a substring, which you should have learned early on in your typical CSC110 class. For Python, on the other hand, we're gonna do some slicing!
+    # https://stackoverflow.com/questions/27387415/how-would-i-get-everything-before-a-in-a-string-python
+    full_name = data.get("name") # Debbie Wasserman Schultz
+    given_name = data.get("given_name") # Debbie
+
+    family_raw = data.get("family_name", "") # Wasserman Schultz
+    parts = family_raw.split()
+
+    if len(parts) == 0: # Debbie
+        middle_name = None # [null]
+        family_name = None # [null]
+    elif len(parts) == 1: # Debbie Schultz
+        middle_name = None # [null]
+        family_name = parts[0] # Schultz
+    else: # Debbie Wasserman Schultz
+        middle_name = " ".join(parts[:-1]) # Wasserman
+        family_name = parts[-1] # Schultz
 
     gender = data.get("gender")
     if gender:
         gender = gender[0].upper()
 
     cur.execute("""
-        INSERT INTO legislators (full_name, given_name, family_name, gender)
-        VALUES (%s, %s, %s, %s)
+        INSERT INTO legislators (full_name, given_name, middle_name, family_name, gender)
+        VALUES (%s, %s, %s, %s, %s)
         ON CONFLICT DO NOTHING
-    """, (full_name, given_name, family_name, gender))
+    """, (full_name, given_name, middle_name, family_name, gender))
 
 
 #########
