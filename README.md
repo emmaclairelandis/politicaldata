@@ -39,9 +39,10 @@ You'll need PostgreSQL for storing, managing, and querying data:
 
 # See also
 
-This repository relies on gathering its data on federal and state legislators from these repos respectively:
+This repository relies on gathering its data on federal, state legislators, and voting records from these repos respectively:
 - https://github.com/unitedstates/congress-legislators
 - https://github.com/openstates/people
+- https://github.com/qstin/LegiScanApiScripts
 
 You may also be interested in browsing these other civic tech projects, sites, and articles:
 - https://www.govtrack.us/
