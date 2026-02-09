@@ -36,51 +36,15 @@ cur = conn.cursor()
 cur.execute("""
 CREATE TABLE IF NOT EXISTS legislators (
     id SERIAL PRIMARY KEY,
-    external_id TEXT UNIQUE,
     full_name TEXT NOT NULL,
-    birthday DATE,
     gender CHAR(1)
 );
 """)
 
 
-#######################
-# FEDERAL LEGISLATORS #
-#######################
-
-# A repo with some basic information we need about legislators.
-# Considering all of the members of congress are in one file, it isn't that big of a deal, but I think it would be more professional to download the file and then read it locally.
-FED_URL = "https://unitedstates.github.io/congress-legislators/legislators-current.json"
-
-# Fetch :3c and parse.
-response = requests.get(FED_URL)
-fed_legislators = response.json()
-
-# Get the data we need GAHAHAHAHAHAHAHAH!!!!!!
-# Lowkey though, this feels so much cleaner and easy to work with than JSON in Java (ToT)
-def insert_federal_legislator(person):
-    external_id = person["id"].get("bioguide")
-    name = person["name"].get("official_full") or (
-        person["name"].get("first", "") + " " + person["name"].get("last", "")
-    )
-    birthday = person["bio"].get("birthday")
-    gender = person["bio"].get("gender")
-    if gender:
-        gender = gender[0].upper()  # F/M
-    
-    cur.execute("""
-    INSERT INTO legislators (external_id, full_name, birthday, gender)
-    VALUES (%s, %s, %s, %s)
-    ON CONFLICT (external_id) DO NOTHING;
-    """, (external_id, name, birthday, gender))
-
-for person in fed_legislators:
-    insert_federal_legislator(person)
-
-
-#####################
-# STATE LEGISLATORS #
-#####################
+###############
+# LEGISLATORS #
+###############
 
 # We'll be more careful with the state legislators.
 STATE_DIR = "data"
@@ -89,17 +53,16 @@ def insert_state_legislator(file_path):
     with open(file_path, "r") as f:
         data = yaml.safe_load(f)
     
-    external_id = data.get("id")
+    #external_id = data.get("id")
     full_name = data.get("name")
     gender = data.get("gender")
     if gender:
         gender = gender[0].upper()  # F/M
     
     cur.execute("""
-    INSERT INTO legislators (external_id, full_name, gender)
-    VALUES (%s, %s, %s)
-    ON CONFLICT (external_id) DO NOTHING;
-    """, (external_id, full_name, gender))
+    INSERT INTO legislators (full_name, gender)
+    VALUES (%s, %s)
+    """, (full_name, gender))
 
 # Walk through all states
 for state in os.listdir(STATE_DIR):
