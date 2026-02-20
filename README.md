@@ -50,5 +50,6 @@ You may also be interested in browsing these other civic tech projects, sites, a
 - https://chamberzero.com/
 - https://www.billtracks.fyi/home
 - https://voteview.com/
-- https://en.wikipedia.org/wiki/NOMINATE_(scaling_method)
 - https://thefreedomindex.org/
+- https://en.wikipedia.org/wiki/NOMINATE_(scaling_method)
+- https://en.wikipedia.org/wiki/List_of_U.S._state_legislatures
